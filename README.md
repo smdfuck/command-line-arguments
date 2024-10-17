@@ -1,8 +1,6 @@
 # command-line-arguments-parser
 simple command line arguments parser on cpp
-
-
-### Usage
+## Usage
 ```
 // all logics in Arguments::
 // before start, you should create structs with args
@@ -61,9 +59,7 @@ struct Args {
 
 }
 ```
-
 ## Functions
-
 ```
 void ParseOneArg(const char* arg, char*& name, char*& value);
 ```
