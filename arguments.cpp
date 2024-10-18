@@ -166,9 +166,24 @@ int Arguments::ProcessArg(
     return EXIT_SUCCESS;
 }
 
-template<typename endp>
 int Arguments::ParsingResult(
-    endp endpoint, char* arg_value, char** argv, int argc, int& iter
+    const int** endpoint, char* arg_value, char** argv, int argc, int& iter
+) {
+    if (iter + 1 > argc) {
+        return EXIT_FAILURE;
+    }
+    
+    int result = ProcessArg(arg_value, argv[++iter], endpoint);
+    if (result == EXIT_FAILURE) {
+        Arguments::ErrorOnParsingArgument(argv[iter - 1]);
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int Arguments::ParsingResult(
+    const char** endpoint, char* arg_value, char** argv, int argc, int& iter
 ) {
     if (iter + 1 > argc) {
         return EXIT_FAILURE;
