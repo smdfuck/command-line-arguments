@@ -8,7 +8,7 @@ public:
 
     template<typename endp>
     static int ParsingResult(
-        endp endpoint, char* arg_value, char** argv, int& iter
+        endp endpoint, char* arg_value, char** argv, int argc, int& iter
     );
 
     static bool ArgCmp(
