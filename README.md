@@ -1,87 +1,194 @@
 # command-line-arguments-parser
 simple command line arguments parser on cpp
-## TODO
-- [ ] refactor this
-## Usage
+## Usage example
 ```
-// all logics in Arguments::
-// before start, you should create structs with args
-
 struct Args {
-    // args should be pointers
     const int* age = nullptr;
     const bool* has_education = nullptr;
+    const char* name = nullptr;
+    const char* file_output = nullptr;
 
-    // create method for clearing this pointer
-    // after app would end
-    void Clear() {
+    ~Args() {
         if (age) delete [] age;
         if (has_education) delete [] has_education;
+        if (name) delete [] name;
+        if (file_output) delete [] file_output;
     }
 
-    // create method Parse (or another name)
-    int Parse(int argc, char** argv) {
+    int Parse (int argc, char** argv) {
+        const size_t int_flags_size = 1;
+        IntFlag my_int_flags [int_flags_size] = {
+            IntFlag::CreateFlag("a", "age", &this->age)
+        };
 
-        if (argc == 0) {
-            return EXIT_SUCCESS;
-        }
+        const size_t bool_flags_size = 1;
+        BoolFlag my_bool_flags [bool_flags_size] = {
+            BoolFlag::CreateFlag("e", "education", &this->has_education, true)
+        };
 
-        for (int i = 1; i < argc; ++i) {
+        const size_t str_flags_size = 1;
+        StringFlag my_str_flags [str_flags_size] = {
+            StringFlag::CreateFlag("n", "name", &this->name)
+        };
 
-            // vars with results of working functions
-            char* arg_name = nullptr;
-            char* arg_value = nullptr;
+        const size_t count_files = 1;
+        FileArgument files [count_files] = {
+            FileArgument::CreateArgument(&this->file_output)
+        };
 
-            // read one arg
-            Arguments::ParseOneArg(argv[i], arg_name, arg_value);
-
-            // check your conditions (arg_name may be nullptr)
-            if (Arguments::ArgCmp(arg_name, "a", "age")) {
-                // if long flag, proccess parsing result
-                int status_code = Arguments::ParsingResult(
-                    &this->age, arg_value, argv, i
-                );
-                if (status_code == EXIT_FAILURE) {
-                    return EXIT_FAILURE;
-                }
-            } else if (Arguments::ArgCmp(arg_name, "e", "edu")) {
-                // if short flag without value, just write your value to arg
-                this->has_education = new bool {true};
-            } else {
-                // if can't find compared flags, exit failure
-                return EXIT_FAILURE;
-            }
-
-            // delete this pointer, because this value useless after check conditions
-            delete [] arg_name;
+        Flags flags = Flags::CreateFlags(
+            my_bool_flags,
+            bool_flags_size,
+            my_int_flags,
+            int_flags_size,
+            my_str_flags,
+            str_flags_size,
+            files,
+            count_files
+        );
+        int status_code = Arguments::Parse(flags, argc, argv);
+        if (status_code == EXIT_FAILURE) {
+            return EXIT_FAILURE;
         }
 
         return EXIT_SUCCESS;
     }
+};
 
+int main(int argc, char** argv) {
+
+    Args args;
+
+    int status_code = args.Parse(argc, argv);
+    if (status_code == EXIT_FAILURE) {
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
 }
 ```
 ## Functions
 ```
-void ParseOneArg(const char* arg, char*& name, char*& value);
+static int Parse(Flags flags, int argc, char** argv);
 ```
-this function check arg value, and write his name and value if exists.
+Start main parsing with user arguments
 
+## Structures
+#### StringFlag
 ```
-template<typename endp>
-static int ParsingResult(
-    endp endpoint, char* arg_value, char** argv, int& iter
-);
-```
-take struct field, and write value into him (only int and char).
-second argument it is arg_value after ParseOneArg work, if it null, this method
-try to parse next argument and if he doesn't find a value, he exit failure
-iter it is out for cycle iterator
+struct StringFlag {
+    const char* short_name = nullptr;
+    const char* long_name = nullptr;
+    const char** endpoint;
 
+    static StringFlag CreateFlag(
+        const char* sh_name, const char* lg_name, const char** endp
+    ) {
+        StringFlag flag;
+        flag.endpoint = endp;
+        flag.short_name = sh_name;
+        flag.long_name = lg_name;
+
+        return flag;
+    }
+};
 ```
-bool ArgCmp(
-    const char* value, const char* short_f, const char * long_f
-);
+
+
+#### IntFlag
 ```
-if value == nullptr, return false
-if compare with short_f or long_f return true
+struct IntFlag {
+    const char* short_name = nullptr;
+    const char* long_name = nullptr;
+    const int** endpoint = nullptr;
+
+    static IntFlag CreateFlag(
+        const char* sh_name, const char* lg_name, const int** endp
+    ) {
+        IntFlag flag;
+        flag.endpoint = endp;
+        flag.short_name = sh_name;
+        flag.long_name = lg_name;
+
+        return flag;
+    }
+};
+```
+
+#### BoolFlag
+```
+struct BoolFlag {
+    const char* short_name = nullptr;
+    const char* long_name = nullptr;
+    const bool** endpoint;
+    bool set = false;
+
+    static BoolFlag CreateFlag(
+        const char* sh_name, const char* lg_name, const bool** endp, bool set
+    ) {
+        BoolFlag flag;
+        flag.endpoint = endp;
+        flag.short_name = sh_name;
+        flag.long_name = lg_name;
+        flag.set = set;
+
+        return flag;
+    }
+};
+```
+
+#### FileArgument
+```
+struct FileArgument {
+    const char** file_endp = nullptr;
+
+    static FileArgument CreateArgument(
+        const char** endp
+    ) {
+        FileArgument arg;
+        arg.file_endp = endp;
+
+        return arg;
+    }
+};
+```
+
+#### Flags
+```
+struct Flags {
+    BoolFlag* bool_flags;
+    size_t bool_flags_size = 0;
+    
+    IntFlag* int_flags;
+    size_t int_flags_size = 0;
+
+    StringFlag* string_flags;
+    size_t string_flags_size = 0;
+
+    FileArgument* file_arguments;
+    size_t count_files = 0;
+
+    static Flags CreateFlags(
+        BoolFlag* bool_flags,
+        const size_t bool_flags_size,
+        IntFlag* int_flags,
+        const size_t int_flags_size,
+        StringFlag* string_flags,
+        const size_t string_flags_size,
+        FileArgument* file_arguments,
+        const size_t count_files
+    ) {
+        Flags flags;
+        flags.bool_flags = bool_flags;
+        flags.bool_flags_size = bool_flags_size;
+        flags.int_flags = int_flags;
+        flags.int_flags_size = int_flags_size;
+        flags.string_flags = string_flags;
+        flags.string_flags_size = string_flags_size;
+        flags.file_arguments = file_arguments;
+        flags.count_files = count_files;
+
+        return flags;
+    }
+};
+```
