@@ -16,7 +16,6 @@ struct StringFlag {
 
         return flag;
     }
-
 };
 
 struct IntFlag {
@@ -70,34 +69,34 @@ struct FileArgument {
 
 struct Flags {
     BoolFlag* bool_flags;
-    size_t bool_flags_size = 0;
+    size_t bool_flags_count = 0;
     
     IntFlag* int_flags;
-    size_t int_flags_size = 0;
+    size_t int_flags_count = 0;
 
     StringFlag* string_flags;
-    size_t string_flags_size = 0;
+    size_t string_flags_count = 0;
 
     FileArgument* file_arguments;
     size_t count_files = 0;
 
     static Flags CreateFlags(
         BoolFlag* bool_flags,
-        const size_t bool_flags_size,
+        const size_t bool_flags_count,
         IntFlag* int_flags,
-        const size_t int_flags_size,
+        const size_t int_flags_count,
         StringFlag* string_flags,
-        const size_t string_flags_size,
+        const size_t string_flags_count,
         FileArgument* file_arguments,
         const size_t count_files
     ) {
         Flags flags;
         flags.bool_flags = bool_flags;
-        flags.bool_flags_size = bool_flags_size;
+        flags.bool_flags_count = bool_flags_count;
         flags.int_flags = int_flags;
-        flags.int_flags_size = int_flags_size;
+        flags.int_flags_count = int_flags_count;
         flags.string_flags = string_flags;
-        flags.string_flags_size = string_flags_size;
+        flags.string_flags_count = string_flags_count;
         flags.file_arguments = file_arguments;
         flags.count_files = count_files;
 

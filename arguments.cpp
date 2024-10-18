@@ -234,8 +234,8 @@ int Arguments::Parse(Flags flags, int argc, char** argv) {
             delete [] arg_value;
             return EXIT_FAILURE;
         }
-        if (flags.bool_flags_size != 0) {
-            for (int j = 0; j < flags.bool_flags_size; ++j) {
+        if (flags.bool_flags_count != 0) {
+            for (int j = 0; j < flags.bool_flags_count; ++j) {
 
                 BoolFlag flag = flags.bool_flags[j]; 
                 bool arg_cmp = Arguments::ArgCmp(
@@ -252,8 +252,8 @@ int Arguments::Parse(Flags flags, int argc, char** argv) {
 
             }
         }
-        if (flags.int_flags_size != 0) {
-            for (int j = 0; j < flags.int_flags_size; ++j) {
+        if (flags.int_flags_count != 0) {
+            for (int j = 0; j < flags.int_flags_count; ++j) {
 
                 IntFlag flag = flags.int_flags[j]; 
                 bool arg_cmp = Arguments::ArgCmp(
@@ -275,8 +275,8 @@ int Arguments::Parse(Flags flags, int argc, char** argv) {
 
             }
         }
-        if (flags.string_flags_size != 0) {
-            for (int j = 0; j < flags.string_flags_size; ++j) {
+        if (flags.string_flags_count != 0) {
+            for (int j = 0; j < flags.string_flags_count; ++j) {
 
                 StringFlag flag = flags.string_flags[j]; 
                 bool arg_cmp = Arguments::ArgCmp(
