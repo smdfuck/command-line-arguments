@@ -6,9 +6,11 @@ class Arguments {
 public:
     static void ParseOneArg(const char* arg, char*& name, char*& value);
 
-    template<typename endp>
     static int ParsingResult(
-        endp endpoint, char* arg_value, char** argv, int argc, int& iter
+        const int** endpoint, char* arg_value, char** argv, int argc, int& iter
+    );
+    static int ParsingResult(
+        const char** endpoint, char* arg_value, char** argv, int argc, int& iter
     );
 
     static bool ArgCmp(

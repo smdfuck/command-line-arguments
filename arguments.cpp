@@ -9,9 +9,10 @@ void Arguments::CountArgumentSize(
     int iter = 0;
     int count_dashes = 0;
     bool write_into_value = false;
+    bool was_letter = false;
 
     for (int i = 0; arg[i] != '\0'; ++i) {
-        if (arg[i] == '-') {
+        if (arg[i] == '-' && !was_letter) {
             count_dashes++;
             continue;
         }
@@ -19,6 +20,7 @@ void Arguments::CountArgumentSize(
             write_into_value = true;
             continue;
         }
+        was_letter = true;
 
         if (write_into_value || count_dashes == 0) {
             value_size += 1;
@@ -35,10 +37,14 @@ void Arguments::WriteArgName(const char* arg, char* arg_name) {
         return;
     }
 
+    bool was_letter = false;
+
     for (int i = 0; arg[i] != '\0' && arg[i] != '='; ++i) {
-        if (arg[i] == '-') {
+        if (arg[i] == '-' && !was_letter) {
             continue;
         }
+        was_letter = true;
+
         arg_name[name_iter] = arg[i];
         name_iter++;
     }
@@ -166,9 +172,24 @@ int Arguments::ProcessArg(
     return EXIT_SUCCESS;
 }
 
-template<typename endp>
 int Arguments::ParsingResult(
-    endp endpoint, char* arg_value, char** argv, int argc, int& iter
+    const int** endpoint, char* arg_value, char** argv, int argc, int& iter
+) {
+    if (iter + 1 > argc) {
+        return EXIT_FAILURE;
+    }
+    
+    int result = ProcessArg(arg_value, argv[++iter], endpoint);
+    if (result == EXIT_FAILURE) {
+        Arguments::ErrorOnParsingArgument(argv[iter - 1]);
+        return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+}
+
+int Arguments::ParsingResult(
+    const char** endpoint, char* arg_value, char** argv, int argc, int& iter
 ) {
     if (iter + 1 > argc) {
         return EXIT_FAILURE;
