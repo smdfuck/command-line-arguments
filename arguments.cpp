@@ -213,6 +213,10 @@ int Arguments::ParsingResult(
 }
 
 int Arguments::Parse(Flags flags, int argc, char** argv) {
+    if (argc == 1) {
+        return EXIT_SUCCESS;
+    }
+
     int f_iter = 0;
     for (int i = 1; i < argc; ++i) {
         char* arg_name = nullptr;
